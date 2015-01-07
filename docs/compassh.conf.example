@@ -1,0 +1,32 @@
+#!/usr/bin/perl
+
+#
+# Set a list of gateways to be used while forwarding connections
+# Each gateway has a label which is later pointed by %patterns hash.
+# Each gateway is formed by a proxy account (user@host:port) and
+# a local_port which will be used as argument for -D ssh switch.
+#
+our %VPN = (
+	bigcorp => {
+		proxy => 'root@gateway.bigcorp.com',
+		local_port => "1080",
+	},
+	strumentiresistenti => {
+		proxy => 'tx0@vpn.strumentiresistenti.org',
+		local_port => "1081",
+	},
+);
+
+#
+# Each pattern here is a regular expression to be matched by
+# the host name the user is connecting to. Each pattern points
+# to a gateway listed in %gateways hash.
+#
+our %patterns = (
+	'.bigcorp.com$' => 'bigcorp',
+	'.subsidiary.net$' => 'bigcorp',
+	'.strumentiresistenti.org$' => 'strumentiresistenti',
+	'.mypersonaldomain.net$' => 'strumentiresistenti',
+);
+
+# vim:syntax=perl

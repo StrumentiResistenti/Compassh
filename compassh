@@ -1,0 +1,73 @@
+#!/usr/bin/perl
+#
+# CompaSSH - OpenVPN Helper for VPN-like services
+# Copyright (C) 2012-2013  Tx0 <tx0@strumentiresistenti.org>
+# 
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+#
+
+### -------- Do NOT change anything under this line -------
+
+use strict;
+use warnings;
+
+my $basedir = $0;
+$basedir =~ s/\/[^\/]+$//;
+
+my $requested_vpn = $ARGV[1] || "";
+
+our (%VPN, %patterns, $bin, $debug);
+
+do "$ENV{HOME}/.compassh.conf";
+do "/usr/libexec/compassh/compassh.utils";
+
+$debug = 0;
+
+my $argv0 = (defined $ARGV[0]) ? lc($ARGV[0]) : "show";
+
+if ($argv0 !~ /start|restart|stop|show|list/) {
+	print STDERR "Unknown command: $argv0\n";
+	exit 1;
+}
+
+if ($argv0 !~ /start|stop/) {
+	print "\n";
+	print "   VPN name               SSH connection                   Port  PID\n";
+	print "-----------------------------------------------------------------------\n";
+}
+
+for my $vpn (sort keys %VPN) {
+	if ($argv0 =~ /stop|restart/) {
+		next if (($requested_vpn ne "") and ($requested_vpn ne $vpn));
+		stop_vpn($vpn);
+	}
+
+	if ($argv0 =~ /restart/) {
+		sleep 2;
+	}
+
+	if ($argv0 =~ /start|restart/) {
+		next if (($requested_vpn ne "") and ($requested_vpn ne $vpn));
+		start_vpn($vpn);
+	}
+	
+	if ($argv0 =~ /show|list/) {
+		show_running_vpn($vpn);
+	}
+}
+
+if ($argv0 !~ /restart|start|stop/) {
+	print "\n";
+}

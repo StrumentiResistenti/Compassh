@@ -1,0 +1,196 @@
+#!/usr/bin/perl
+#
+# CompaSSH - OpenVPN Helper for VPN-like services
+# Copyright (C) 2012-2013  Tx0 <tx0@strumentiresistenti.org>
+# 
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+#
+
+use strict;
+use warnings;
+
+our (%VPN, %patterns, $vpn, $debug);
+
+$debug = 0 unless defined $debug and $debug;
+
+#
+# Binary paths -- scan and check existance!
+#
+our $bin = {};
+for my $cmd (qw(nc ssh awk grep host netstat)) {
+	$bin->{$cmd} = `which $cmd`;
+	chomp($bin->{$cmd});
+	unless (defined $bin->{$cmd} and $bin->{$cmd}) {
+		die "Can't find $cmd executable\n";
+	}
+	dbg("$cmd is $bin->{$cmd}") if $debug > 1;
+}
+
+#
+# Check if the host name provided as first argument has a
+# match in the %patterns hash, and set the global $proxy
+# and $local_port variables
+#
+sub match_pattern {
+	our ($vpn, %VPN, %profiles, $bin, $local_port, $proxy);
+
+	my $host = shift() || return 0;
+	for my $key (keys %patterns) {
+		if ($host =~ /$key/) {
+			#
+			# avoid looping
+			#
+			for my $vpn (keys %VPN) {
+				if ($VPN{$vpn}->{proxy} =~ /$host/) {
+					dbg("Direct connection to proxy host $host");
+					return 0; # do a direct connection to proxy hosts
+				}
+			}
+
+			$vpn = $patterns{$key};
+			$proxy = $VPN{$vpn}->{proxy};
+			$local_port = $VPN{$vpn}->{local_port};
+
+			dbg("Connection to $host goes proxyed through $proxy");
+			return $vpn; # do a proxyed connection
+		}
+	}
+
+	dbg("No profile found for host $host");
+	return 0; # do a direct connection
+}
+
+#
+# Execute a command line and return the output
+#
+sub guess {
+	our (%VPN, %profiles, $bin);
+	my $line = shift();
+	dbg("Executing $line");
+	my $result = qx($line);
+	for (split /\n/, $result) {
+		dbg(" > $_");
+	}
+	return $result;
+}
+
+#
+# Check if a VPN for requested pattern is already running
+# must be executed after match_patter() has been called, but
+# hey! Who the hell is supposed to change the code after the
+# "Do NOT even think to change anything below this line" line?
+#
+sub vpn_running {
+	our ($local_port, %VPN, %profiles, $bin);
+
+	my $vpn = shift();
+	$local_port = $VPN{$vpn}->{local_port};
+
+	my $pid = guess("$bin->{netstat} -plant 2>/dev/null | $bin->{grep} 127.0.0.1:$local_port | $bin->{grep} LISTEN | awk '{print \$7}'");
+	chomp $pid;
+	$pid =~ s#/.*##;
+	return length($pid) ? $pid : 0;
+}
+
+#
+# Start a VPN
+#
+sub start_vpn {
+	my $vpn = shift() || return;
+
+	# get vpn profile from config table
+	my $proxy = $VPN{$vpn}->{proxy};
+	my $local_port = $VPN{$vpn}->{local_port};
+
+	# check if vpn is already running
+	if (vpn_running($vpn)) {
+		dbg("VPN already running");
+		return;
+	}
+
+	# if vpn requires a parent vpn, start it
+	my $parent = $VPN{$vpn}->{parent};
+	if (defined $parent and defined $VPN{$parent}) {
+		start_vpn($vpn);
+		unless (vpn_running($vpn)) {
+			dbg("Error starting parent VPN $parent");
+			return;
+		}
+	}
+
+	# format config file path
+	my $profile = "$ENV{HOME}/.ssh/config.$vpn";
+	$profile = (-f $profile) ? "-F $profile" : "-F /dev/null";
+
+	my $cmd = "$bin->{ssh} $profile -N -D $local_port $proxy &";
+	dbg("Starting $cmd");
+	system($cmd);
+}
+
+#
+# Stop a single VPN, searching it by local_port number
+#
+sub stop_vpn {
+	my $vpn = shift() || return;
+
+	my $proxy = $VPN{$vpn}->{proxy};
+	my $local_port = $VPN{$vpn}->{local_port};
+
+	my $pid = vpn_running($vpn);
+	if ($pid) {
+		dbg("Killing VPN #$local_port (PID: $pid)");
+		system("kill $pid");
+	}
+}
+
+sub show_running_vpn {
+	my $vpn = shift() || return;
+
+	my $proxy = $VPN{$vpn}->{proxy};
+	my $local_port = $VPN{$vpn}->{local_port};
+
+	my $pid = vpn_running($vpn);
+	if ($pid) {
+		printf "\e[1m\e[7m + %-22s %-32s %-5d %-5d\e[0m\n", $vpn, $proxy, $local_port, $pid;
+	} else {
+		printf "   %-22s %-32s %-5d -\n", $vpn, $proxy, $local_port;
+	}
+}
+
+sub resolve {
+	my ($host, $vpn) = @_;
+
+	my $proxy = $VPN{$vpn}->{proxy};
+	my $local_port = $VPN{$vpn}->{local_port};
+
+	my $IP =
+		guess("$bin->{grep} $host /etc/hosts | $bin->{awk} '{print \$1}'") ||
+		guess("$bin->{ssh} -F /dev/null $proxy grep $host /etc/hosts | $bin->{awk} '{print \$1}'") || 
+		guess("$bin->{ssh} -F /dev/null $proxy host $host | $bin->{awk} '{print \$4}'") ||
+		guess("$bin->{host} $host | $bin->{awk} '{print \$4}'") ||
+		$host;
+
+	chomp $IP;			# remove \n at the end of the line
+	$IP =~ s/\s.*//;	# discard second address and more
+
+	dbg("$host resolves to IP address $IP");
+	return $IP;
+}
+
+sub dbg {
+	print STDERR "[CompaSSH] " . shift() . "\n" if $debug;
+}
+
+# vim:syntax=perl

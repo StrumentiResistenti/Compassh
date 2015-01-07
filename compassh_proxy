@@ -1,0 +1,85 @@
+#!/usr/bin/perl
+#
+# CompaSSH - OpenVPN Helper for VPN-like services
+# Copyright (C) 2012-2013  Tx0 <tx0@strumentiresistenti.org>
+# 
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+#
+
+use strict;
+use warnings;
+
+do "~/.compassh.conf";
+do "/usr/libexec/compassh/compassh.utils";
+
+###
+### -------- Do NOT even think to change anything below this line -------
+###
+
+our (%VPN, %patterns, $bin, $debug);
+
+$debug = 0 unless defined $debug and $debug;
+
+#
+# Fetch arguments from command line
+#
+my $host = $ARGV[0] || die("No hostname or IP provided");
+my $port = (defined $ARGV[1] and length $ARGV[1]) ? $ARGV[1] : 22;
+
+#
+# Define global variables (ugly, I know, but that's just a hack, mate!)
+#
+our $proxy = undef;
+our $local_port = undef;
+our $vpn = undef;
+
+#
+# If the host is matched by something, than try to figure out the
+# address and then connect.
+#
+if ($vpn = match_pattern($host)) {
+	#
+	# use a proxy
+	#
+
+	#
+	# first resolve the remote address using proxy /etc/hosts,
+	# proxy resolver, local /etc/hosts and local resolver.
+	# If anything fails (?!?!?) just use the provided $host value.
+	#
+	my $IP = resolve($host, $vpn);
+
+	#
+	# If there's no VPN (wow, not a real VPN, just a tunnel), starts
+	# one, running in the background for future connections
+	#
+	if (!vpn_running($vpn)) {
+		start_vpn($vpn);
+		sleep 3;
+	}
+
+	#
+	# launch netcat to forward the connection through the proxy
+	#
+	dbg("$bin->{nc} -n -X 5 -x 127.0.0.1:$local_port $IP $port");
+	exec($bin->{nc} . " -n -X 5 -x 127.0.0.1:$local_port $IP $port");
+
+} else {
+
+	#
+	# simply forward the connection
+	#
+	exec($bin->{nc} . " $host $port");
+}
