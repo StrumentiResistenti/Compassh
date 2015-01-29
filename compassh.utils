@@ -19,7 +19,7 @@
 #
 
 use strict;
-# use warnings;
+use warnings;
 
 our (%VPN, %patterns, $vpn, $debug);
 
@@ -74,6 +74,7 @@ sub match_pattern {
 
 #
 # Execute a command line and return the output
+# Currently unused since external pipelines have been replace by perl equivalents
 #
 sub guess {
 	our (%VPN, %profiles, $bin);
@@ -98,8 +99,7 @@ sub vpn_running {
 	my $vpn = shift();
 	$local_port = $VPN{$vpn}->{local_port};
 
-	my $pid = guess("$bin->{netstat} -plant 2>/dev/null | $bin->{grep} 127.0.0.1:$local_port | $bin->{grep} LISTEN | awk '{print \$7}'");
-	chomp $pid;
+	my $pid = (split /\s+/, (grep { /LISTEN/ } grep { /127.0.0.1:1082/ } split /\n/, qx(netstat -plant 2>/dev/null))[0])[6];
 	$pid =~ s#/.*##;
 	return length($pid) ? $pid : 0;
 }
