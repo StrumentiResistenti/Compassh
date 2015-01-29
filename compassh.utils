@@ -99,7 +99,7 @@ sub vpn_running {
 	my $vpn = shift();
 	$local_port = $VPN{$vpn}->{local_port};
 
-	my $pid = (split /\s+/, (grep { /LISTEN/ } grep { /127.0.0.1:1082/ } split /\n/, qx(netstat -plant 2>/dev/null))[0])[6];
+	my $pid = (split /\s+/, (grep { /LISTEN/ } grep { /127.0.0.1:1082/ } split /\n/, qx($bin->{netstat} -plant 2>/dev/null))[0])[6];
 	$pid =~ s#/.*##;
 	return length($pid) ? $pid : 0;
 }
@@ -175,12 +175,16 @@ sub resolve {
 	my $proxy = $VPN{$vpn}->{proxy};
 	my $local_port = $VPN{$vpn}->{local_port};
 
+	no warnings;
+
 	my $IP =
 		(split /\s+/, (grep { /\b$host\b/ } split /\n/, qx($bin->{cat} /etc/hosts))[0])[0] ||
 		(split /\s+/, (grep { /has address/ } split /\n/, qx($bin->{host} $host))[0])[3] ||
 		(split /\s+/, (grep { /\b$host\b/ } split /\n/, qx($bin->{ssh} -F /dev/null $proxy cat /etc/hosts))[0])[0] ||
 		(split /\s+/, (grep { /has address/ } split /\n/, qx($bin->{ssh} -F /dev/null $proxy host $host))[0])[3] ||
 		$host;
+	
+	use warnings;
 
 	chomp $IP;			# remove \n at the end of the line
 	$IP =~ s/\s.*//;	# discard second address and more
