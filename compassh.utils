@@ -169,19 +169,41 @@ sub show_running_vpn {
 	}
 }
 
+#
+# Resolve an hostname to an IP address using multiple resources,
+# including remote proxy /etc/hosts file and DNS system, to include
+# private naming convetions too.
+#
 sub resolve {
 	my ($host, $vpn) = @_;
 
 	my $proxy = $VPN{$vpn}->{proxy};
 	my $local_port = $VPN{$vpn}->{local_port};
 
+	our %hosts;
+
 	no warnings;
 
+	#
+	# get the remote address from (customize the order to your needs):
+	#
 	my $IP =
+		# a) the ~/.compassh.conf %hosts table
+		(defined $hosts{$host} and length $hosts{$host} ? $hosts{$host} : undef) ||	
+
+		# b) the local /etc/hosts
 		(split /\s+/, (grep { /\b$host\b/ } split /\n/, qx($bin->{cat} /etc/hosts))[0])[0] ||
+
+		# c) the local DNS system
 		(split /\s+/, (grep { /has address/ } split /\n/, qx($bin->{host} $host))[0])[3] ||
+
+		# d) the remote /etc/hosts hosted by remote proxy
 		(split /\s+/, (grep { /\b$host\b/ } split /\n/, qx($bin->{ssh} -F /dev/null $proxy cat /etc/hosts))[0])[0] ||
+
+		# e) the remote DNS queried from the remote proxy
 		(split /\s+/, (grep { /has address/ } split /\n/, qx($bin->{ssh} -F /dev/null $proxy host $host))[0])[3] ||
+
+		# f) the host value itself, as it was specified on the command line
 		$host;
 	
 	use warnings;
