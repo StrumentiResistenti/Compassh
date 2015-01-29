@@ -99,9 +99,15 @@ sub vpn_running {
 	my $vpn = shift();
 	$local_port = $VPN{$vpn}->{local_port};
 
-	my $pid = (split /\s+/, (grep { /LISTEN/ } grep { /127.0.0.1:1082/ } split /\n/, qx($bin->{netstat} -plant 2>/dev/null))[0])[6];
-	$pid =~ s#/.*##;
-	return length($pid) ? $pid : 0;
+	no warnings;
+	my $pid = (split /\s+/, (grep { /LISTEN/ } grep { /127.0.0.1:$local_port/ } split /\n/, qx($bin->{netstat} -plant 2>/dev/null))[0])[6];
+	use warnings;
+
+	if (defined $pid and length $pid) {
+		$pid =~ s#/.*##;
+		return $pid;
+	} 
+	return 0;
 }
 
 #
