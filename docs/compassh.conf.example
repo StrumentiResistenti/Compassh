@@ -29,4 +29,13 @@ our %patterns = (
 	'.mypersonaldomain.net$' => 'strumentiresistenti',
 );
 
+#
+# Add some mappings to the /etc/hosts replacement table called %hosts
+#
+our %hosts = (
+    'remote1' => '192.168.21.3',
+    'git.intranet' => '172.20.106.32',
+    # ... and more ...
+);
+
 # vim:syntax=perl
