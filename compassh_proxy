@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# CompaSSH - OpenVPN Helper for VPN-like services
+# CompaSSH - OpenSSH Helper for VPN-like services
 # Copyright (C) 2012-2013  Tx0 <tx0@strumentiresistenti.org>
 # 
 # This program is free software; you can redistribute it and/or
@@ -21,16 +21,14 @@
 use strict;
 use warnings;
 
-do "~/.compassh.conf";
+do "$ENV{HOME}/.compassh.conf";
 do "/usr/libexec/compassh/compassh.utils";
 
 ###
 ### -------- Do NOT even think to change anything below this line -------
 ###
 
-our (%VPN, %patterns, $bin, $debug);
-
-$debug = 0 unless defined $debug and $debug;
+our $bin;
 
 #
 # Fetch arguments from command line
@@ -73,7 +71,7 @@ if ($vpn = match_pattern($host)) {
 	#
 	# launch netcat to forward the connection through the proxy
 	#
-	dbg("$bin->{nc} -n -X 5 -x 127.0.0.1:$local_port $IP $port");
+	dbg("$bin->{nc} -n -X 5 -x 127.0.0.1:$local_port $IP $port", 2);
 	exec($bin->{nc} . " -n -X 5 -x 127.0.0.1:$local_port $IP $port");
 
 } else {
@@ -83,3 +81,43 @@ if ($vpn = match_pattern($host)) {
 	#
 	exec($bin->{nc} . " $host $port");
 }
+
+__END__
+
+=pod
+
+=head1 NAME
+
+compassh_proxy - CompaSSH ssh proxy command
+
+=head1 SYNOPSYS
+
+ProxyCommand /usr/libexec/compassh/compassh_proxy %h %p
+
+=head1 DESCRIPTION
+
+CompaSSH enables OpenSSH to connect to a host inside a private network
+using a publicly reachable OpenSSH gateway. CompaSSH manages port forwarding and
+SOCKS proxying. CompaSSH does some name resolution too to make private names valid
+outside of private networks.
+
+=head1 USAGE
+
+compassh_proxy is a helper for OpenSSH. It must be enabled in ~/.ssh/config file
+adding a line to the "Host *" stanza:
+
+ Host *
+ 	ProxyCommand /usr/libexec/compassh/compassh_proxy %h %p
+
+=head1 FILES
+
+~/.compassh.confE<10> E<8>
+	Your CompaSSH configuration
+
+=head1 SEE ALSO
+
+compassh(1), compassh.conf(5)
+
+=head1 AUTHOR
+
+Tx0 <tx0@strumentiresistenti.org>
