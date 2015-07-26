@@ -62,7 +62,7 @@ Here *mycustomer* is running (see the `+` sign on the left and the assigned PID)
 
 After starting the *mycustomer* VPN, the user can:
 
- * connect to host **customer-mail** just by `ssh customer-mail`, even if the host is on a private remote network
+ * connect to host **customer-mail** just by `ssh customer-mail`, even if the host is on a private remote network with no direct routing is provided
  * connect to web resources inside the remote private network by setting up a SOCKS proxy in its browser at `localhost:1082` (the Port column reports the right port) and forwarding DNS requests across the SOCKS proxy
 
 More information can be found at http://www.strumentiresistenti.org/en/labs/compassh
