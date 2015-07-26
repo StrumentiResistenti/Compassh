@@ -65,6 +65,8 @@ After starting the *mycustomer* VPN, the user can:
  * connect to host **customer-mail** just by `ssh customer-mail`, even if the host is on a private remote network to where no direct routing is provided
  * connect to web resources inside the remote private network by setting up a SOCKS proxy in its browser at `localhost:1082` (the Port column reports the right port) and forwarding DNS requests across the SOCKS proxy
 
+To install CompaSSH, just execute the provided `install.sh` script. 
+
 More information can be found at http://www.strumentiresistenti.org/en/labs/compassh
 
 CompaSSH documentation can be read at http://github.com/StrumentiResistenti/Compassh/blob/master/docs/compassh.pdf
