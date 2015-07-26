@@ -48,7 +48,7 @@ CompaSSH is configured by the `~/.compassh.conf` file:
         'customer-mail' => '172.20.107.32',
     );
 
-VPNs can be listed by:
+VPNs can be started by `compassh start <VPN name>` and stopped by `compassh stop <VPN name>`. If a name is not provided, CompaSSH will start or stop all the VPNs. Configured VPNs can be listed by:
 
     $ compassh 
     
