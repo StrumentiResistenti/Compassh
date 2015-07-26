@@ -1,4 +1,4 @@
-# Compassh
+# CompaSSH
 
 Claiming to be the OpenSSH VPN, but without the VPN, CompaSSH manages a set of preconfigured SSH tunnels and enables connecting to hosts on private networks by switching on a publicly reachable SSH gateway, using the SSH `ProxyCommand` feature. The private host name does not need to be publicly resolvable.
 
