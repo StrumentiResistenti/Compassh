@@ -60,7 +60,7 @@ VPNs can be listed by:
 
 Here *mycustomer* is running (see the `+` sign on the left and the assigned PID). Each VPN can have is SSH configuration file in the `~/.ssh` directory, with the VPN name appended. For example: `~/.ssh/config.bigcorp`. In this file a set of prefowarded ports can be specified.
 
-After starting the *mycustomer* VPN, the used can:
+After starting the *mycustomer* VPN, the user can:
 
  * connect to host **customer-mail** just by `ssh customer-mail`, even if the host is on a private remote network
  * connect to web resources by setting up a SOCKS proxy in its browser at `localhost:1082` (the Port column reports the right port)
