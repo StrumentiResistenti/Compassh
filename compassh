@@ -32,8 +32,35 @@ do "/usr/libexec/compassh/compassh.utils";
 
 my $argv0 = (defined $ARGV[0]) ? lc($ARGV[0]) : "show";
 
-if ($argv0 !~ /start|restart|stop|show|list|config/) {
+if ($argv0 !~ /^start|restart|stop|show|list|config|help|hosts$/) {
 	print STDERR "Unknown command: $argv0\n";
+	exit 1;
+}
+
+if ($argv0 =~ /help/) {
+	print qq(
+  CompaSSH, the SSH VPN without the VPN.
+
+    $0 [show|list]
+      Show CompaSSH status and active VPNs
+
+    $0 [start|stop|restart <VPN>]
+      Manages declared VPNs
+ 
+    $0 [config <VPN>]
+      Show a VPN config file
+
+    $0 [hosts [add|remove <host> <IP addr>]]
+      Show and manage internal hostname resolution map
+
+  More information at http://strumentiresistenti.org/en/Compassh-introduction
+
+);
+	exit 0;
+}
+
+if ($argv0 =~ /hosts/) {
+	print qq(\n  Still to be implemented!\n\n);
 	exit 1;
 }
 
