@@ -138,8 +138,9 @@ sub start_vpn {
 
 	# format config file path
 	my $profile = "$ENV{HOME}/.ssh/config.$vpn";
-	$profile = (-f $profile) ? "-F $profile" : "-F /dev/null";
-
+	my $default_profile = "$ENV{HOME}/.ssh/config.compassh";
+	$profile = (-f $profile) ? "-F $profile" : (-f $default_profile) ? "-F $default_profile" : "-F /dev/null";
+	
 	my $cmd = "$bin->{ssh} $profile -N -D $local_port $proxy &";
 	dbg("Starting $cmd", 2);
 	system($cmd);
