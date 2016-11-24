@@ -58,7 +58,7 @@ VPNs can be started by `compassh start <VPN name>` and stopped by `compassh stop
        home                   root@ganimede.dontexist.net      1090  -
      + mycustomer             root@1.2.3.4                     1082  1280 
 
-Here *mycustomer* is running (see the `+` sign on the left and the assigned PID). Each VPN can have is SSH configuration file in the `~/.ssh` directory, with the VPN name appended. For example: `~/.ssh/config.bigcorp`. In this file a set of prefowarded ports can be specified.
+Here *mycustomer* is running (see the `+` sign on the left and the assigned PID). Each VPN can have its SSH configuration file in the `~/.ssh` directory, with the VPN name appended. For example: `~/.ssh/config.bigcorp`. In this file a set of prefowarded ports can be specified.
 
 After starting the *mycustomer* VPN, the user can:
 
