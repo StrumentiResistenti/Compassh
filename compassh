@@ -66,8 +66,8 @@ if ($argv0 =~ /hosts/) {
 
 if ($argv0 =~ /list|show/) {
 	print "\n";
-	print "   VPN name               SSH connection                   Port  PID\n";
-	print "-----------------------------------------------------------------------\n";
+	print "   VPN name           SSH connection                                     Port  PID\n";
+	print "-----------------------------------------------------------------------------------------\n";
 }
 
 for my $vpn (sort keys %VPN) {
