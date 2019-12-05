@@ -100,7 +100,7 @@ sub vpn_running {
 	$local_port = $VPN{$vpn}->{local_port};
 
 	no warnings;
-	my $pid = (split /\s+/, (grep { /LISTEN/ } grep { /127.0.0.1:$local_port/ } split /\n/, qx($bin->{netstat} -plant 2>/dev/null))[0])[6];
+	my $pid = (split /\s+/, (grep { /LISTEN/ } grep { /(127|0).0.0.[01]:$local_port/ } split /\n/, qx($bin->{netstat} -plant 2>/dev/null))[0])[6];
 	use warnings;
 
 	if (defined $pid and length $pid) {
@@ -141,7 +141,7 @@ sub start_vpn {
 	my $default_profile = "$ENV{HOME}/.ssh/config.compassh";
 	$profile = (-f $profile) ? "-F $profile" : (-f $default_profile) ? "-F $default_profile" : "-F /dev/null";
 	
-	my $cmd = "$bin->{ssh} $profile -N -D $local_port $proxy &";
+	my $cmd = "$bin->{ssh} $profile -C -q -N -D0.0.0.0:$local_port $proxy &";
 	dbg("Starting $cmd", 2);
 	system($cmd);
 }
@@ -170,9 +170,9 @@ sub show_running_vpn {
 
 	my $pid = vpn_running($vpn);
 	if ($pid) {
-		printf "\e[1m\e[7m + %-22s %-32s %-5d %-5d\e[0m\n", $vpn, $proxy, $local_port, $pid;
+		printf "\e[1m\e[7m + %-18s %-50s %-5d %-5d\e[0m\n", $vpn, $proxy, $local_port, $pid;
 	} else {
-		printf "   %-22s %-32s %-5d -\n", $vpn, $proxy, $local_port;
+		printf "   %-18s %-50s %-5d -\n", $vpn, $proxy, $local_port;
 	}
 }
 
