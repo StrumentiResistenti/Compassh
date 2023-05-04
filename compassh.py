@@ -20,43 +20,17 @@
 
 import sys
 import compassh.config
+import compassh.actions
 
 if __name__ == "__main__":
 	conf = compassh.config.Config(sys.argv[1:])
+	if conf.action() == 'show_vpn':
+		compassh.actions.show_vpn(conf)
+	if conf.action() == 'show_hosts':
+		compassh.actions.show_hosts(conf)	
+	if conf.action() == 'show_patterns':
+		compassh.actions.show_patterns(conf)
 
-### if ($argv0 =~ /help/) {
-### 	print qq(
-###   CompaSSH, the SSH VPN without the VPN.
-### 
-###     $0 [show|list]
-###       Show CompaSSH status and active VPNs
-### 
-###     $0 [start|stop|restart <VPN>]
-###       Manages declared VPNs
-###  
-###     $0 [config <VPN>]
-###       Show a VPN config file
-### 
-###     $0 [hosts [add|remove <host> <IP addr>]]
-###       Show and manage internal hostname resolution map
-### 
-###   More information at http://strumentiresistenti.org/en/Compassh-introduction
-### 
-### );
-### 	exit 0;
-### }
-### 
-### if ($argv0 =~ /hosts/) {
-### 	print qq(\n  Still to be implemented!\n\n);
-### 	exit 1;
-### }
-### 
-### if ($argv0 =~ /list|show/) {
-### 	print "\n";
-### 	print "   VPN name           SSH connection                                     Port  PID\n";
-### 	print "-----------------------------------------------------------------------------------------\n";
-### }
-### 
 ### for my $vpn (sort keys %VPN) {
 ### 	if ($argv0 =~ /stop|restart/) {
 ### 		next if (($requested_vpn ne "") and ($requested_vpn ne $vpn));

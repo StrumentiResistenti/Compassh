@@ -1,3 +1,23 @@
+#!/usr/bin/env python3
+#
+# CompaSSH - OpenSSH Helper for VPN-like services
+# Copyright (C) 2012-2023  Andrea Novara <tx0@strumentiresistenti.org>
+# 
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+#
+
 import getopt, yaml, os, sys
 
 class Config:
@@ -14,6 +34,7 @@ class Config:
 	# v = Verbose
 	# c = Show config
 	# H = Show internal host table
+	# p = Show declared patterns
 	# l = List VPN (default behaviour)
 	# s = Start VPN
 	# S = Stop VPN
@@ -22,7 +43,7 @@ class Config:
 	#
 	def parse_command_line(self, argv):
 		self.conf['args'] = {'action': 'show_vpn'}
-		opts, args = getopt.getopt(argv, "hvcHlsSrV:")
+		opts, args = getopt.getopt(argv, "hvcHlsSrpV:")
 		for opt, arg in opts:
 			if opt == '-h':
 				self.print_help()
@@ -35,6 +56,8 @@ class Config:
 				self.conf['args']['action'] = 'show_hosts'
 			elif opt == '-l':
 				self.conf['args']['action'] = 'show_vpn'
+			elif opt == '-p':
+				self.conf['args']['action'] = 'show_patterns'
 			elif opt == '-s':
 				self.conf['args']['action'] = 'start_vpn'
 			elif opt == '-S':
@@ -44,8 +67,6 @@ class Config:
 			elif opt == '-V':
 				self.conf['args']['vpn'] = arg
 				print(f"Operating on VPN {self.conf['args']['vpn']}")
-
-		print(f"Action requested: {self.conf['args']['action']}")
 
 	#
 	# Read configuration from the user home and from the system file
@@ -58,17 +79,6 @@ class Config:
 			if self.conf['verbose']:
 				print("verbose enabled\n")
 
-			VPN = self.conf['VPN']
-			for vpn in VPN:
-				print(f"VPN {vpn} // proxy: {VPN[vpn]['proxy']} // local_port: {VPN[vpn]['local_port']}")
-
-			patterns = self.conf['patterns']
-			for p in patterns:
-				print(f"Pattern {p} points to vpn {patterns[p]}")
-
-			hosts = self.conf['hosts']
-			for h in hosts:
-				print(f"Host {h} has address {hosts[h]}")
 		else:
 			print(f"Unable to read {conf} configuration file")
 			sys.exit(1)
@@ -80,6 +90,20 @@ class Config:
 		home = os.path.expanduser('~')
 		return f"{home}/.compassh.conf"
 
+	def arg(self, a):
+		return self.conf['args'][a]
+	
+	def action(self):
+		return self.arg('action')
+
+	def vpn(self, v):
+		return self.conf['VPN'][v]
+	
+	def pattern(self, p):
+		return self.conf['patterns'][p]
+	
+	def host(self, h):
+		return self.conf['hosts'][h]
 
 	def print_help(self):
 		command = sys.argv[0]
