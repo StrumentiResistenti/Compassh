@@ -126,3 +126,4 @@ CompaSSH, the SSH VPN without the VPN.
 
 More information at http://strumentiresistenti.org/en/Compassh-introduction
 """)
+		sys.exit(0)
