@@ -44,11 +44,11 @@ verbose: False
 # by public key and the public key must be activated with ssh-add before
 # trying to connect to the remote host.
 #
-# Each VPN has also a local port paired. Local ports must be unique among
-# all defined VPNs and are used to identify running VPNs too. That port is
-# the SOCKS enabled port CompaSSH will use to route connections and can
-# be used as well by any SOCKS enabled application, like web browsers, to
-# forward connections through a VPN.
+# Each VPN has also a paired local port. Local ports must be unique among
+# all defined VPNs and are used to identify running VPNs too. Local ports
+# accept SOCKS connections and CompaSSH will use them to route trafic.
+# Last but not least, local ports can be used as well by any SOCKS enabled
+# application, like web browsers, to forward connections through a VPN.
 #
 VPN:
   home:
@@ -79,7 +79,7 @@ patterns:
   ^jdoe-desktop$: bigcorp
 
 #
-# Just an /etc/hosts equivalent. Basically this section maps a bunch
+# hosts is just an /etc/hosts equivalent. Basically this section maps a bunch
 # of hostnames to their corresponding IP addresses. This is particularly
 # useful to connect to remote hosts which are on a private network, which
 # means that our local machine will not be able to resolve their addresses
@@ -110,18 +110,6 @@ Configured VPNs can be listed by:
 Here *mycustomer* is running (see the `-->` sign on the left and the assigned PID). 
 
 The internal hostname resolution can be tested by `compassh.py -R <hostname>`. Please note that <hostname> must match a host-to-VPN pattern to be resolved, otherwise the request will not be honoured.
-
-## Configuring VPN port forwarding
-
-Each VPN can have its own SSH configuration file in the `~/.ssh` directory, with the VPN name appended. For example: `~/.ssh/config.bigcorp` is the configuration file used when bigcorp VPN is activated. In this file a set of prefowarded ports can be specified, like in the example below:
-
-```
-Host *
-        LocalForward 10001 localhost:10001
-        LocalForward 8080 192.168.1.20:8080
-```
-
-With this file named `~/.ssh/conf.bigcorp` and after starting the bigcorp VPN with `compassh -s bigcorp`, the local port 10001 will be forwarded on port 10001 of the remote host, while 8080 will be forwarded on port 8080 of host 192.168.1.20, which is identified by a private address and is then reachable thanks to the proxy started on bigcorp' gateway. Thanks to this port forwarding you can reach the application server located at 192.168.1.20 (8080 is usually assigned to application servers) which is not publicly exposed.
 
 ## CompaSSH automatic routing
 
@@ -155,3 +143,15 @@ OpenSSH will use compassh_proxy.py as its ProxyCommand, which in turn will decid
 Since the VPN is now active: 
 * any SOCKS connection routed through port 1083 will be established from within bigcorp' network 
 * any port forwarding possibly defined in a file named `~/.ssh/config.bigcorp` will be available as well
+
+## Configuring VPN port forwarding
+
+Each VPN can have its own SSH configuration file in the `~/.ssh` directory, with its name appended. For example: `~/.ssh/config.bigcorp` is the configuration file applied when bigcorp VPN is activated. The following examples shows how to use this file to forward a set of ports, as soon as the VPN is started:
+
+```
+Host *
+        LocalForward 10001 localhost:10001
+        LocalForward 8080 192.168.1.20:8080
+```
+
+With this file named `~/.ssh/conf.bigcorp` and after starting the bigcorp VPN with `compassh -s bigcorp`, the local port 10001 will be forwarded on port 10001 of the VPN gateway itself, while 8080 will be forwarded on port 8080 of host 192.168.1.20, which is identified by a private address and is then reachable exclusively through the VPN started on bigcorp' gateway. By connecting on local port 8080, you can now reach the application server located on port 8080 at 192.168.1.20, which is not publicly exposed.
