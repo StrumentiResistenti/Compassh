@@ -132,4 +132,4 @@ OpenSSH will use compassh_proxy.py as its ProxyCommand, which in turn will decid
 
 Since the VPN is now active: 
 * any SOCKS connection routed through port 1083 will be established from within bigcorp' network 
-* any port forwardings possibly defined in a file named `~/.ssh/config.bigcorp` will be available as well
+* any port forwarding possibly defined in a file named `~/.ssh/config.bigcorp` will be available as well
