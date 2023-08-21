@@ -7,7 +7,11 @@ Claiming to be the OpenSSH VPN, but without the VPN, CompaSSH manages a set of p
 To setup CompaSSH, all you need to do is:
 
 1. Copy compassh.py in a directory within your shell path
-2. Link compassh.py as compassh_proxy.py too: CompaSSH acts in proxy mode if invoked like this
+2. Link compassh.py as compassh_proxy.py too:
+
+	$ ln -s compassh.py compassh_proxy.py
+
+CompaSSH acts in proxy mode if invoked like this
 3. Edit your ~/.ssh/config file (create one if you haven't) and set this two lines:
 
 	Host *
