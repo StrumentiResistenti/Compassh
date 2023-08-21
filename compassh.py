@@ -190,7 +190,7 @@ class Config:
 CompaSSH, the SSH VPN without the VPN.
 
   {command} -l
-    Show CompaSSH status and active VPNs
+    Show CompaSSH status and active VPNs (default)
 
   {command} -s <VPN>
   {command} -S <VPN>
@@ -203,7 +203,15 @@ CompaSSH, the SSH VPN without the VPN.
   {command} -H 
     Show internal hostname resolution map
 
-More information at http://strumentiresistenti.org/en/Compassh-introduction
+  {command} -p
+    Print the configured host-to-VPN mapping patterns 
+
+  {command} -R <hostname>
+    Resolve <hostname> using all the resolution strategies available
+    <hostname> must match a VPN pattern to be resolved
+
+  {command} -h
+    Print this help screen
 """)
 		sys.exit(0)
 
