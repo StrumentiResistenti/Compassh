@@ -33,6 +33,7 @@ After setting up CompaSSH to work with OpenSSH, you still need to declare the VP
 
 ```
 verbose: False
+
 #
 # Set a list of VPNs to be used while forwarding connections
 # Each VPN has a label which is later pointed by the patterns section.
@@ -50,6 +51,7 @@ VPN:
   bigcorp:
     proxy: jdoe@bigcorp.com
     local_port: 1083
+
 #
 # Each pattern here is a regular expression to be matched by
 # the host name the user is connecting to. Each pattern points
@@ -59,6 +61,7 @@ patterns:
   ^customer-mail: mycustomer
   ^customer.*$: mycustomer
   ^jdoe-desktop$: bigcorp
+
 #
 # /etc/hosts equivalent: basically maps a bunch of hostnames to
 # their corresponding IP addresses
@@ -82,9 +85,49 @@ Configured VPNs can be listed by:
          home                   root@ganimede.dontexist.net      1090  -
      --> mycustomer             root@1.2.3.4                     1082  1280 
 
-Here *mycustomer* is running (see the `-->` sign on the left and the assigned PID). Each VPN can have its SSH configuration file in the `~/.ssh` directory, with the VPN name appended. For example: `~/.ssh/config.bigcorp` is the configuration file used when SSH routes the connection through the mycustomer VPN. In this file a set of prefowarded ports can be specified.
+Here *mycustomer* is running (see the `-->` sign on the left and the assigned PID). 
 
-After starting the *mycustomer* VPN, the user can:
+The internal hostname resolution can be tested by `compassh.py -R <hostname>`. Please note that <hostname> must match a host-to-VPN pattern to be resolved, otherwise the request will not be honoured.
 
- * connect to host **customer-mail** just by `ssh customer-mail`, even if the host is on a private remote network to where no direct routing is provided
- * connect to web resources inside the remote private network by setting up a SOCKS proxy in its browser at `localhost:1082` (the Port column reports the right port) and forwarding DNS requests across the SOCKS proxy
+## Configuring VPN port forwarding
+
+Each VPN can have its own SSH configuration file in the `~/.ssh` directory, with the VPN name appended. For example: `~/.ssh/config.bigcorp` is the configuration file used when bigcorp VPN is activated. In this file a set of prefowarded ports can be specified, like in the example below:
+
+```
+Host *
+        LocalForward 10001 localhost:10001
+        LocalForward 8080 192.168.1.20:8080
+```
+
+With this file named `~/.ssh/conf.bigcorp` and after starting the bigcorp VPN with `compassh -s bigcorp`, the local port 10001 will be forwarded on port 10001 of the remote host, while 8080 will be forwarded on port 8080 of host 192.168.1.20, which is identified by a private address and is then reachable thanks to the proxy started on bigcorp' gateway. Thanks to this port forwarding you can reach the application server located at 192.168.1.20 (8080 is usually assigned to application servers) which is not publicly exposed.
+
+## CompaSSH automatic routing
+
+The most interesting feature of CompaSSH is the routing of SSH connections without any other step. Let's suppose you are the owner of jdoe-desktop which is privately addressable on the bigcorp intranet. Let's also suppose you're moving and have only access to bigcorp public SSH gateway. Let's then focus on this subset of the YAML configuration:
+
+```
+VPN:
+  bigcorp:
+    proxy: jdoe@bigcorp.com
+    local_port: 1083
+patterns:
+  ^jdoe-desktop$: bigcorp
+hosts:
+  jdoe-desktop: 192.168.21.1
+```
+
+This YAML states that:
+
+1. It is possible to establish a VPN connection named bigcorp by connecting with SSH to host bigcorp.com as jdoe (private key credentials are assumed here)
+2. Any SSH connection to host jdoe-desktop can be routed through that bigcorp VPN
+3. Since the jdoe-desktop host has only a privately resolvable address, the conf suggest the resolution to 192.168.21.1
+
+With this YAML in place as `~/.compassh.yaml`, right after powering up your PC and connecting to the Internet, without any other intermediate step, whenever you are, you can SSH straight to jdoe-desktop by just entering on your terminal:
+
+```
+$ ssh jdoe-desktop
+```
+
+OpenSSH will use CompaSSH as its ProxyCommand, which in turn will decide to first power up the bigcorp VPN and route through it the connection to jdoe-desktop, using address 192.168.21.1 as it final destination.
+
+Since the VPN is now turned on, any SOCKS connection routed through port 1083 will be established from within bigcorp' network and any port forwardings possibly defined in a file named `~/.ssh/config.bigcorp` will be available as well.
