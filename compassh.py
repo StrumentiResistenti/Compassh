@@ -216,6 +216,8 @@ CompaSSH, the SSH VPN without the VPN.
 		sys.exit(0)
 
 class Actions:
+	""" Holds all the actions the CLI performs """
+
 	def show_hosts(conf):
 		""" Show hosts from the internal host table """
 		print("\n")

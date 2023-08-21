@@ -35,36 +35,56 @@ After setting up CompaSSH to work with OpenSSH, you still need to declare the VP
 verbose: False
 
 #
-# Set a list of VPNs to be used while forwarding connections
-# Each VPN has a label which is later pointed by the patterns section.
-# Each VPN is formed by a proxy account (user@host:port) and
-# a local_port which will be used as argument for -D ssh switch.
-# The local port must be unique among the VPNs.
+# The VPN section declares the VPNs available. Each VPN must be provided
+# with a proxy, which is an SSH destination in the form:
+#   user_name@hostname[:port]
+# The user_name is supposed to be able to authenticate on the remote host
+# by public key and the public key must be activated with ssh-add before
+# trying to connect to the remote host.
+#
+# Each VPN has also a local port paired. Local ports must be unique among
+# all defined VPNs and are used to identify running VPNs too. That port is
+# the SOCKS enabled port CompaSSH will use to route connections and can
+# be used as well by any SOCKS enabled application, like web browsers, to
+# forward connections through a VPN.
 #
 VPN:
   home:
     proxy: 'root@ganimede.dontexist.net'
     local_port: 1090
-  mycustomer:
-    proxy: root@1.2.3.4
+  calvinhobbes:
+    proxy: 'calvin@hobbes.org'
     local_port: 1082
   bigcorp:
-    proxy: jdoe@bigcorp.com
+    proxy: 'jdoe@bigcorp.com'
     local_port: 1083
 
 #
-# Each pattern here is a regular expression to be matched by
-# the host name the user is connecting to. Each pattern points
-# to a VPN listed in the VPN section
+# When CompaSSH is used as a proxy to establish connections, it uses the
+# patterns provided in this section to match the destination to a declared
+# VPN. If the regular expression described as key matches the destination
+# (i.e. ^.*somedomain.com$ matches www3.somedomain.com), than the corresponding
+# VPN on the right is choosen.
+#
+# Several patterns can point to the same VPN. This just means that several
+# destinations can be reached through the same VPN. In this example, two
+# patterns point to the calvinhobbes VPN, while a third one points through
+# bigcorp VPN.
 #
 patterns:
-  ^customer-mail: mycustomer
-  ^customer.*$: mycustomer
+  ^mail-customer: calvinhobbes
+  ^customer.*$: calvinhobbes
   ^jdoe-desktop$: bigcorp
 
 #
-# /etc/hosts equivalent: basically maps a bunch of hostnames to
-# their corresponding IP addresses
+# Just an /etc/hosts equivalent. Basically this section maps a bunch
+# of hostnames to their corresponding IP addresses. This is particularly
+# useful to connect to remote hosts which are on a private network, which
+# means that our local machine will not be able to resolve their addresses
+# on this side, failing to establish the connection. If a destination is
+# not listed in this section, CompaSSH will anyway try to resolve the
+# hostname using the regular resolver library, but without any guarantee
+# of success.
 #
 hosts:
   jdoe-desktop: 192.168.21.1
