@@ -11,6 +11,7 @@ To setup CompaSSH, all you need to do is:
 
 	$ ln -s compassh.py compassh_proxy.py
 
+
 CompaSSH acts in proxy mode if invoked like this
 3. Edit your ~/.ssh/config file (create one if you haven't) and set this two lines:
 
