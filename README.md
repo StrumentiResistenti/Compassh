@@ -103,7 +103,7 @@ With this file named `~/.ssh/conf.bigcorp` and after starting the bigcorp VPN wi
 
 ## CompaSSH automatic routing
 
-The most interesting feature of CompaSSH is the routing of SSH connections without any other step. Let's suppose you are the owner of jdoe-desktop which is privately addressable on the bigcorp intranet. Let's also suppose you're moving and have only access to bigcorp public SSH gateway. Let's then focus on this subset of the YAML configuration:
+The most interesting feature of CompaSSH is the routing of SSH connections without requiring any other step. Let's suppose you are the owner of jdoe-desktop which is privately addressable on the bigcorp intranet. Let's also suppose you're moving and have only access to bigcorp public SSH gateway. Let's then focus on this subset of the YAML configuration:
 
 ```
 VPN:
