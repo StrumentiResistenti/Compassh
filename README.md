@@ -4,7 +4,7 @@
 
 CompaSSH enables connecting to hosts on private networks by switching through publicly reachable SSH gateways, using the SSH `ProxyCommand` feature and the SOCKS protocol. Destination hosts do not need to be publicly reachable, nor resolvable.
 
-## Setting up and enabling
+## Setting up OpenSSH
 
 Setting up CompaSSH is as easy as following this 1-2-3:
 
@@ -29,7 +29,7 @@ Host *
 
 The third step configures OpenSSH to use CompaSSH as a proxy whenever a new SSH connection is started. CompaSSH will receive the remote hostname and port you want to connect (by the %h and %p macros) and will do its black magic behind the scenes to setup the required VPN (if not running yet) and will then forward all the trafic through that VPN.
 
-## Configuring CompaSSH
+## Configuring CompaSSH VPNs and routing strategies
 
 After setting up CompaSSH to work with OpenSSH, you still need to declare the VPNs and the rules to use them. This is done by writing a file named `~/.compassh.yaml`:
 
