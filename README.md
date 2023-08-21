@@ -128,6 +128,6 @@ With this YAML in place as `~/.compassh.yaml`, right after powering up your PC a
 $ ssh jdoe-desktop
 ```
 
-OpenSSH will use compassh_proxy.py as its ProxyCommand, which in turn will decide to first power up the bigcorp VPN and route through it the connection to jdoe-desktop, using address 192.168.21.1 as it final destination.
+OpenSSH will use compassh_proxy.py as its ProxyCommand, which in turn will decide to first power up the bigcorp VPN and route through it the connection to jdoe-desktop, using address 192.168.21.1 as its final destination.
 
 Since the VPN is now turned on, any SOCKS connection routed through port 1083 will be established from within bigcorp' network and any port forwardings possibly defined in a file named `~/.ssh/config.bigcorp` will be available as well.
