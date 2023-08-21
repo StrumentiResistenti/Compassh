@@ -122,7 +122,7 @@ This YAML states that:
 2. Any SSH connection to host jdoe-desktop can be routed through that bigcorp VPN
 3. Since the jdoe-desktop host has only a privately resolvable address, the conf suggest the resolution to 192.168.21.1
 
-With this YAML in place as `~/.compassh.yaml`, right after powering up your PC and connecting to the Internet, without any other intermediate step, whenever you are, you can SSH straight to jdoe-desktop by just entering on your terminal:
+With this YAML in place as `~/.compassh.yaml`, right after powering up your PC and connecting to the Internet, without any other intermediate step, wherever you are, you can SSH straight to jdoe-desktop by just entering on your terminal:
 
 ```
 $ ssh jdoe-desktop
