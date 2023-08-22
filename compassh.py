@@ -190,7 +190,7 @@ class Config:
 CompaSSH, the SSH VPN without the VPN.
 
   {command} -l
-    Show CompaSSH status and active VPNs (default)
+    Show CompaSSH status and active VPNs
 
   {command} -s <VPN>
   {command} -S <VPN>
@@ -203,21 +203,11 @@ CompaSSH, the SSH VPN without the VPN.
   {command} -H 
     Show internal hostname resolution map
 
-  {command} -p
-    Print the configured host-to-VPN mapping patterns 
-
-  {command} -R <hostname>
-    Resolve <hostname> using all the resolution strategies available
-    <hostname> must match a VPN pattern to be resolved
-
-  {command} -h
-    Print this help screen
+More information at http://strumentiresistenti.org/en/Compassh-introduction
 """)
 		sys.exit(0)
 
 class Actions:
-	""" Holds all the actions the CLI performs """
-
 	def show_hosts(conf):
 		""" Show hosts from the internal host table """
 		print("\n")
@@ -231,7 +221,7 @@ class Actions:
 	
 	def show_vpn(conf):
 		""" Show the VPN with their status (default behaviour) """
-		print("\n")
+		print("")
 		print("    VPN name           SSH connection                                     Port   PID")
 		print("----------------------------------------------------------------------------------------")
 	
@@ -377,6 +367,7 @@ class Actions:
 			Actions.resolve(conf, host, vpn)
 
 def cli(conf):
+	""" Performs the requested CLI action and quits """
 	action = conf.action()
 	if action == 'show_vpn':
 		Actions.show_vpn(conf)
@@ -396,6 +387,11 @@ def cli(conf):
 		Actions.match_and_resolve(conf, conf.target())
 
 def proxy(conf):
+	"""
+	Behave as a proxy, by guessing the right VPN,
+	trying to resolve the destination hostname,
+	starting the VPN and creating the netcat link
+	"""
 	if len(sys.argv) < 2:
 		print(f"Can't run compassh in proxy mode without a host name")
 	else:
@@ -419,6 +415,9 @@ def proxy(conf):
 			pid = Actions.vpn_running(conf, vpn)
 			if pid == 0:
 				Actions.start_vpn(conf, vpn)
+				pid = Actions.vpn_running(conf, vpn)
+				if pid == 0:
+					Actions.start_vpn(conf, vpn)
 
 			local_port = conf.vpn(vpn)['local_port']
 			subprocess.Popen(f"{conf.cmd('nc')} -n -X 5 -x 127.0.0.1:{local_port} {IP} {port}".split(" "))
