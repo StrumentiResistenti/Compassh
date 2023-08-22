@@ -109,7 +109,7 @@ Configured VPNs can be listed by:
 
 Here *mycustomer* is running (see the `-->` sign on the left and the assigned PID). 
 
-The internal hostname resolution can be tested by `compassh.py -R <hostname>`. Please note that <hostname> must match a host-to-VPN pattern to be resolved, otherwise the request will not be honoured.
+The internal hostname resolution can be tested by `compassh.py -R <hostname>`. Please note that the hostname must match a host-to-VPN pattern to be resolved, otherwise the request will not be honoured.
 
 ## CompaSSH automatic routing
 
