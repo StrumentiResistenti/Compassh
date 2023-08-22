@@ -140,7 +140,7 @@ $ ssh jdoe-desktop
 
 OpenSSH will use compassh_proxy.py as its ProxyCommand, which in turn will decide to first power up the bigcorp VPN and route through it the connection to jdoe-desktop, using address 192.168.21.1 as its final destination.
 
-Since the VPN is now active: 
+As long as the VPN stays active: 
 * any SOCKS connection routed through port 1083 will be established from within bigcorp' network 
 * any port forwarding possibly defined in a file named `~/.ssh/config.bigcorp` will be available as well
 
