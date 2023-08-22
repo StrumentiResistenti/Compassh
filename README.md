@@ -27,7 +27,7 @@ Host *
 	ProxyCommand /path/to/compassh_proxy.py %h %p
 ```
 
-The third step configures OpenSSH to use CompaSSH as a proxy whenever a new SSH connection is started. CompaSSH will receive the remote hostname and port you want to connect to (by the %h and %p macros) and will do all the wiring behind the scenes to setup the required VPN (if not running yet) and then forward all the traffic through that VPN.
+The third step configures OpenSSH to use CompaSSH as a proxy whenever a new SSH connection is started. CompaSSH will receive the remote hostname and port you want to connect to (by the %h and %p macros) and will do all the wiring behind the scenes to setup the required VPN (if not running yet) and then forward all the traffic through it.
 
 ## Configuring CompaSSH VPNs and routing strategies
 
@@ -37,7 +37,7 @@ After setting up CompaSSH to work with OpenSSH, you still need to declare the VP
 verbose: False
 
 #
-# The VPN section declares the VPNs available. Each VPN must be provided
+# The VPN section declares the available VPNs. Each VPN must be provided
 # with a proxy, which is an SSH destination in the form:
 #   user_name@hostname[:port]
 # The user_name is supposed to be able to authenticate on the remote host
@@ -95,7 +95,7 @@ hosts:
 
 ## Command line interface 
 
-VPNs can be started by `compassh -s <VPN name>` and stopped by `compassh -S <VPN name>`. 
+VPNs can be started by `compassh.py -s <VPN name>` and stopped by `compassh.py -S <VPN name>`. 
 
 Configured VPNs can be listed by:
 
