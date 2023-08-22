@@ -142,7 +142,7 @@ OpenSSH will use compassh_proxy.py as its ProxyCommand, which in turn will decid
 
 As long as the VPN stays active: 
 * any SOCKS connection routed through port 1083 will be established from within bigcorp' network 
-* any port forwarding possibly defined in a file named `~/.ssh/config.bigcorp` will be available as well (check what configuration is active on bigcorp' VPN with `./compassh.py -c bigcorp`)
+* any port forwarding possibly defined in a file named `~/.ssh/config.bigcorp` will be available as well (see next section)
 
 ## Configuring VPN port forwarding
 
@@ -155,3 +155,18 @@ Host *
 ```
 
 With this file named `~/.ssh/conf.bigcorp` and after starting the bigcorp VPN with `compassh -s bigcorp`, the local port 10001 will be forwarded on port 10001 of the VPN gateway itself, while 8080 will be forwarded on port 8080 of host 192.168.1.20, which is identified by a private address and is then reachable exclusively through the VPN started on bigcorp' gateway. By connecting on local port 8080, you can now reach the application server located on port 8080 at 192.168.1.20, which is not publicly exposed.
+
+Current configuration can be checked by the command `./compassh.py -c <VPN>`. As an example, if you run `./compass.py -c bigcorp`, you'll get this output:
+
+```
+
+Showing config file /home/username/.ssh/config.bigcorp for VPN bigcorp
+
+======================================================================
+Host *
+        LocalForward 10001 localhost:10001
+        LocalForward 8080 192.168.1.20:8080
+======================================================================
+```
+
+If the VPN has no dedicated config file, a default config file named `~/.ssh/config.compassh` is used. This file is purposely different from SSH standard `~/.ssh/config` to avoid loops in the configuration. If even this file is missing, `/dev/null` is used and `-c` shows nothing.
